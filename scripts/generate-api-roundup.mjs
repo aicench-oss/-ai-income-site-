@@ -4,10 +4,10 @@
 // op GitHub). Omdat de feiten (naam, beschrijving, url, auth) al kloppen, hoeft het
 // model alleen wervende/uitleggende tekst eromheen te schrijven — niet te verzinnen.
 //
-// Vereist: ANTHROPIC_API_KEY in de omgeving (zie .env.example).
+// Vereist: GEMINI_API_KEY in de omgeving (zie .env.example).
 // Gebruik: npm run generate:apis
 
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from '@google/genai';
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const ARTICLES_DIR = path.join(ROOT, 'src/content/articles');
 const APIS_PATH = path.join(__dirname, 'data/apis.json');
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 const MIN_ENTRIES_PER_CATEGORY = 5;
 const MAX_ENTRIES_IN_ARTICLE = 10;
@@ -84,9 +84,9 @@ function toFrontmatter(title, description) {
 }
 
 async function main() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('ANTHROPIC_API_KEY ontbreekt. Zet die in je omgeving of .env (zie .env.example).');
+    console.error('GEMINI_API_KEY ontbreekt. Zet die in je omgeving of .env (zie .env.example).');
     process.exit(1);
   }
 
@@ -111,27 +111,21 @@ async function main() {
 
   console.log(`Genereer API-overzicht voor categorie: ${category} (${selected.length} API's)`);
 
-  const client = new Anthropic({ apiKey });
+  const client = new GoogleGenAI({ apiKey });
   const dataBlock = selected
     .map((e) => `- naam: ${e.name}\n  url: ${e.url}\n  beschrijving: ${e.description}\n  auth: ${e.auth}\n  https: ${e.https}`)
     .join('\n');
 
-  const response = await client.messages.create({
+  const response = await client.models.generateContent({
     model: MODEL,
-    max_tokens: 4000,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: `Categorie: ${category}\n\nAangeleverde API's (gebruik uitsluitend deze data):\n${dataBlock}\n\nGeef ook een titel (max 65 tekens) en een meta-omschrijving (max 155 tekens) apart terug, in dit exacte formaat vooraan je antwoord:\n\nTITLE: <titel>\nDESCRIPTION: <omschrijving>\n---BODY---\n<markdown body>`,
-      },
-    ],
+    contents: `Categorie: ${category}\n\nAangeleverde API's (gebruik uitsluitend deze data):\n${dataBlock}\n\nGeef ook een titel (max 65 tekens) en een meta-omschrijving (max 155 tekens) apart terug, in dit exacte formaat vooraan je antwoord:\n\nTITLE: <titel>\nDESCRIPTION: <omschrijving>\n---BODY---\n<markdown body>`,
+    config: {
+      systemInstruction: SYSTEM_PROMPT,
+      maxOutputTokens: 4000,
+    },
   });
 
-  const text = response.content
-    .filter((block) => block.type === 'text')
-    .map((block) => block.text)
-    .join('\n');
+  const text = response.text;
 
   const titleMatch = text.match(/TITLE:\s*(.+)/);
   const descMatch = text.match(/DESCRIPTION:\s*(.+)/);

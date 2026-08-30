@@ -1,8 +1,8 @@
 # AI Tools Gids
 
 Een grotendeels geautomatiseerde contentsite over AI-tools voor freelancers en kleine
-bedrijven. Content wordt gegenereerd via de Claude API, gepubliceerd als statische
-Astro-site, en verdient (potentieel) via affiliate links.
+bedrijven. Content wordt gegenereerd via de gratis Gemini API, gepubliceerd als
+statische Astro-site, en verdient (potentieel) via affiliate links.
 
 **Belangrijk:** dit systeem automatiseert het schrijven en publiceren van content. Het
 garandeert geen inkomsten — dat hangt af van verkeer, welke affiliate-programma's je
@@ -16,7 +16,7 @@ belanden en dus samen op de homepage verschijnen:
 
 **1. Tool-vergelijkingen** (affiliate-gericht)
 - `scripts/topics.json` bevat een wachtrij van artikel-onderwerpen (AI-tools + invalshoek).
-- `scripts/generate-article.mjs` pakt het eerstvolgende onderwerp en laat Claude een
+- `scripts/generate-article.mjs` pakt het eerstvolgende onderwerp en laat Gemini een
   feitelijk, niet-verzonnen artikel schrijven.
 - Draait wekelijks via `.github/workflows/generate-content.yml`.
 
@@ -25,7 +25,7 @@ belanden en dus samen op de homepage verschijnen:
   [public-apis/public-apis](https://github.com/public-apis/public-apis) GitHub-repo),
   gegroepeerd per categorie (Weather, Finance, Games, etc.).
 - `scripts/generate-api-roundup.mjs` pakt de eerstvolgende categorie die nog geen
-  artikel heeft, en laat Claude een "beste gratis [categorie] API's"-overzicht
+  artikel heeft, en laat Gemini een "beste gratis [categorie] API's"-overzicht
   schrijven — **op basis van de echte, aangeleverde data**, dus het model verzint geen
   namen, urls of features, alleen de begeleidende tekst.
 - Draait elke twee weken via `.github/workflows/generate-api-roundup.yml`.
@@ -46,28 +46,28 @@ prijzen, die snel verouderen — de API-data zelf verandert veel minder snel).
 Dit zijn stappen die ik niet voor je kan zetten omdat ze jouw identiteit, e-mailadres
 of betaalgegevens vereisen.
 
-### 1. Anthropic API key (voor de contentgenerator)
-- Ga naar https://console.anthropic.com, maak een account, genereer een API key.
+### 1. Gemini API key (voor de contentgenerator, gratis tier)
+- Ga naar https://aistudio.google.com/apikey, log in met je Google-account, genereer
+  een API key.
 - Zet 'm lokaal in een `.env` bestand (zie `.env.example`) om lokaal te testen:
   ```
   cp .env.example .env
-  # vul ANTHROPIC_API_KEY in
+  # vul GEMINI_API_KEY in
   npm install
   npm run generate
   ```
-- Kosten: een paar cent per artikel, ruim binnen budget.
+- Kosten: gratis tier (`gemini-2.5-flash`), ruim voldoende voor dit gebruik. Let op de
+  rate limits van de gratis tier als je snel achter elkaar test.
 
-### 2. Code naar GitHub
-- Maak een gratis GitHub-account/repo aan.
-- `git init && git add . && git commit -m "init"` en push naar je nieuwe repo.
-- Voeg je Anthropic API key toe als GitHub Actions secret: repo → Settings →
+### 2. Code naar GitHub ✅ (al gedaan)
+- Repo staat op GitHub en is gekoppeld aan Vercel.
+- Voeg je Gemini API key toe als GitHub Actions secret: repo → Settings →
   Secrets and variables → Actions → New repository secret → naam
-  `ANTHROPIC_API_KEY`.
-- Zonder deze stap draait de wekelijkse automatische generatie niet.
+  `GEMINI_API_KEY`.
+- Zonder deze stap draaien de automatische workflows niet.
 
-### 3. Hosting (gratis)
-- Maak een account op https://vercel.com (of Netlify) en koppel je GitHub-repo.
-- Vercel detecteert Astro automatisch. Elke push naar `main` deployt vanzelf.
+### 3. Hosting ✅ (al gedaan)
+- Vercel is gekoppeld aan de repo. Elke push naar `main` deployt automatisch.
 - Update `site` in `astro.config.mjs` naar je echte domein zodra je die hebt.
 
 ### 4. Domeinnaam (optioneel, ~€10/jaar)

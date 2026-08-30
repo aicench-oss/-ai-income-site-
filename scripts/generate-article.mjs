@@ -2,10 +2,10 @@
 // Genereert een nieuw artikel op basis van de eerstvolgende niet-geschreven topic in
 // scripts/topics.json en slaat het op als markdown in src/content/articles/.
 //
-// Vereist: ANTHROPIC_API_KEY in de omgeving (zie .env.example).
+// Vereist: GEMINI_API_KEY in de omgeving (zie .env.example).
 // Gebruik: npm run generate
 
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from '@google/genai';
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const ARTICLES_DIR = path.join(ROOT, 'src/content/articles');
 const TOPICS_PATH = path.join(__dirname, 'topics.json');
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 const SYSTEM_PROMPT = `Je schrijft voor een Nederlandstalige contentsite ("AI Tools Gids") die AI-software
 bespreekt voor freelancers en kleine bedrijven. Regels waar je je STRIKT aan houdt:
@@ -64,9 +64,9 @@ function toFrontmatter(topic, title, description) {
 }
 
 async function main() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('ANTHROPIC_API_KEY ontbreekt. Zet die in je omgeving of .env (zie .env.example).');
+    console.error('GEMINI_API_KEY ontbreekt. Zet die in je omgeving of .env (zie .env.example).');
     process.exit(1);
   }
 
@@ -81,23 +81,17 @@ async function main() {
 
   console.log(`Genereer artikel voor: ${next.tool} (${next.slug})`);
 
-  const client = new Anthropic({ apiKey });
-  const response = await client.messages.create({
+  const client = new GoogleGenAI({ apiKey });
+  const response = await client.models.generateContent({
     model: MODEL,
-    max_tokens: 4000,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: `Schrijf een artikel over "${next.tool}". Invalshoek: ${next.angle}\n\nGeef ook een titel (max 65 tekens) en een meta-omschrijving (max 155 tekens) apart terug, in dit exacte formaat vooraan je antwoord:\n\nTITLE: <titel>\nDESCRIPTION: <omschrijving>\n---BODY---\n<markdown body>`,
-      },
-    ],
+    contents: `Schrijf een artikel over "${next.tool}". Invalshoek: ${next.angle}\n\nGeef ook een titel (max 65 tekens) en een meta-omschrijving (max 155 tekens) apart terug, in dit exacte formaat vooraan je antwoord:\n\nTITLE: <titel>\nDESCRIPTION: <omschrijving>\n---BODY---\n<markdown body>`,
+    config: {
+      systemInstruction: SYSTEM_PROMPT,
+      maxOutputTokens: 4000,
+    },
   });
 
-  const text = response.content
-    .filter((block) => block.type === 'text')
-    .map((block) => block.text)
-    .join('\n');
+  const text = response.text;
 
   const titleMatch = text.match(/TITLE:\s*(.+)/);
   const descMatch = text.match(/DESCRIPTION:\s*(.+)/);

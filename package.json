@@ -14,8 +14,8 @@
     "generate:apis": "node scripts/generate-api-roundup.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.122.0",
     "@astrojs/sitemap": "^3.7.3",
+    "@google/genai": "^2.19.0",
     "astro": "^7.2.9"
   },
   "allowScripts": {
