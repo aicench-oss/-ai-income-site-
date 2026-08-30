@@ -11,18 +11,35 @@ meetbaar resultaat is.
 
 ## Hoe het werkt
 
-1. `scripts/topics.json` bevat een wachtrij van artikel-onderwerpen (AI-tools + invalshoek).
-2. `scripts/generate-article.mjs` pakt het eerstvolgende onderwerp, laat Claude een
-   feitelijk, niet-verzonnen artikel schrijven, en slaat het op in
-   `src/content/articles/`.
-3. Astro bouwt hier een statische site van (`npm run build`).
-4. GitHub Actions (`.github/workflows/generate-content.yml`) draait dit script
-   wekelijks automatisch, commit het nieuwe artikel, en pusht — waarna je hosting
-   (Vercel/Netlify) automatisch een nieuwe versie deployt.
+Er zijn twee onafhankelijke contentstromen, die allebei in `src/content/articles/`
+belanden en dus samen op de homepage verschijnen:
 
-Jij hoeft normaal gesproken alleen: nieuwe onderwerpen toe te voegen aan
-`topics.json`, en artikelen af en toe te controleren op feitelijke juistheid
-(vooral prijzen, die snel verouderen).
+**1. Tool-vergelijkingen** (affiliate-gericht)
+- `scripts/topics.json` bevat een wachtrij van artikel-onderwerpen (AI-tools + invalshoek).
+- `scripts/generate-article.mjs` pakt het eerstvolgende onderwerp en laat Claude een
+  feitelijk, niet-verzonnen artikel schrijven.
+- Draait wekelijks via `.github/workflows/generate-content.yml`.
+
+**2. API-overzichten** (SEO/verkeer-gericht)
+- `scripts/data/apis.json` bevat 1700+ echte, publieke API's (geëxtraheerd uit de
+  [public-apis/public-apis](https://github.com/public-apis/public-apis) GitHub-repo),
+  gegroepeerd per categorie (Weather, Finance, Games, etc.).
+- `scripts/generate-api-roundup.mjs` pakt de eerstvolgende categorie die nog geen
+  artikel heeft, en laat Claude een "beste gratis [categorie] API's"-overzicht
+  schrijven — **op basis van de echte, aangeleverde data**, dus het model verzint geen
+  namen, urls of features, alleen de begeleidende tekst.
+- Draait elke twee weken via `.github/workflows/generate-api-roundup.yml`.
+- Dit soort listicles scoort van nature goed in zoekmachines ("beste gratis weather
+  api" etc.) en trekt developers/freelancers aan — precies de doelgroep van de site.
+  Deze artikelen hebben zelf geen affiliate-link, maar bouwen verkeer en autoriteit op
+  die de tool-vergelijkingsartikelen (en straks advertenties) ten goede komt.
+
+Astro bouwt van alle artikelen samen een statische site (`npm run build`), en je
+hosting (Vercel/Netlify) deployt automatisch bij elke push naar `main`.
+
+Jij hoeft normaal gesproken alleen: af en toe nieuwe onderwerpen toevoegen aan
+`topics.json`, en artikelen af en toe controleren op feitelijke juistheid (vooral
+prijzen, die snel verouderen — de API-data zelf verandert veel minder snel).
 
 ## Wat JIJ zelf moet doen (eenmalig, ~1-2 uur)
 
@@ -102,7 +119,8 @@ artikel heeft in `src/content/articles/`.
 | Command | Actie |
 | :--- | :--- |
 | `npm install` | Installeer dependencies |
-| `npm run generate` | Genereer het volgende artikel via de Claude API |
+| `npm run generate` | Genereer het volgende tool-vergelijkingsartikel |
+| `npm run generate:apis` | Genereer het volgende API-overzichtsartikel |
 | `npm run dev` | Lokale dev server op `localhost:4321` |
 | `npm run build` | Bouw de statische site naar `./dist/` |
 | `npm run preview` | Preview de build lokaal |
