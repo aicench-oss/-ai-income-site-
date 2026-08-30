@@ -1,0 +1,31 @@
+---
+interface Props {
+  tool: string;
+  url?: string;
+}
+const { tool, url } = Astro.props;
+---
+{url && (
+  <div class="affiliate-box">
+    <p>
+      Wil je <strong>{tool}</strong> zelf proberen?
+      <a href={url} rel="sponsored noopener noreferrer" target="_blank">Bekijk {tool} &rarr;</a>
+    </p>
+    <p class="fine-print">Dit is een affiliate link. Als je via deze link koopt, ontvangen wij mogelijk een commissie — zonder extra kosten voor jou.</p>
+  </div>
+)}
+
+<style>
+  .affiliate-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+  }
+  .fine-print {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0;
+  }
+</style>
