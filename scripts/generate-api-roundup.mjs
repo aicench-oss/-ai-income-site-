@@ -16,7 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const ARTICLES_DIR = path.join(ROOT, 'src/content/articles');
 const APIS_PATH = path.join(__dirname, 'data/apis.json');
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
 const MIN_ENTRIES_PER_CATEGORY = 5;
 const MAX_ENTRIES_IN_ARTICLE = 10;

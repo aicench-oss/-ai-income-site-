@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const ARTICLES_DIR = path.join(ROOT, 'src/content/articles');
 const TOPICS_PATH = path.join(__dirname, 'topics.json');
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
 const SYSTEM_PROMPT = `Je schrijft voor een Nederlandstalige contentsite ("AI Tools Gids") die AI-software
 bespreekt voor freelancers en kleine bedrijven. Regels waar je je STRIKT aan houdt:

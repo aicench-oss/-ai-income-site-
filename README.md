@@ -56,8 +56,11 @@ of betaalgegevens vereisen.
   npm install
   npm run generate
   ```
-- Kosten: gratis tier (`gemini-2.5-flash`), ruim voldoende voor dit gebruik. Let op de
+- Kosten: gratis tier (`gemini-3.6-flash`), ruim voldoende voor dit gebruik. Let op de
   rate limits van de gratis tier als je snel achter elkaar test.
+- Google deprecate modelversies regelmatig. Als een generate-commando faalt met een
+  "model not found"-fout, zet dan tijdelijk `GEMINI_MODEL=<nieuwe-modelnaam>` in `.env`
+  (zie de foutmelding zelf voor het aanbevolen alternatief) totdat de code is bijgewerkt.
 
 ### 2. Code naar GitHub ✅ (al gedaan)
 - Repo staat op GitHub en is gekoppeld aan Vercel.
